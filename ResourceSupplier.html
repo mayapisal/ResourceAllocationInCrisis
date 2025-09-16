@@ -348,10 +348,16 @@ async function checkCompliance() {
 }
 
 /** ========== Set / Update ========== */
+/** ========== Set / Update ========== */
 async function setQuantity() {
   try {
     const typeIdx = Number(els.setResType.value);
     const qty = BigInt(els.setQty.value || "0");
+
+    if (qty === 0n) {  // prevent zero quantity
+      setStatus("❌ Quantity cannot be 0. Please enter a value greater than 0.", true);
+      return;
+    }
 
     const tx = await contract.setResourceQuantity(typeIdx, qty);
     setStatus("Setting resource quantity... waiting for confirmation");
@@ -369,6 +375,11 @@ async function updateQuantity() {
     const typeIdx = Number(els.updResType.value);
     const qty = BigInt(els.updQty.value || "0");
 
+    if (qty === 0n) {  // prevent zero quantity
+      setStatus("❌ Updated quantity cannot be 0. Please enter a value greater than 0.", true);
+      return;
+    }
+
     const tx = await contract.updateResourceQuantity(typeIdx, qty);
     setStatus("Updating resource quantity... waiting for confirmation");
     await tx.wait();
@@ -379,6 +390,7 @@ async function updateQuantity() {
     setStatus(readableError(e), true);
   }
 }
+
 
 /** ========== Admin / Owner ========== */
 async function openForm() {
@@ -586,6 +598,7 @@ els.btnAgg.onclick = viewAggregates;
 </script>
 </body>
 </html>
+
 
 
 
