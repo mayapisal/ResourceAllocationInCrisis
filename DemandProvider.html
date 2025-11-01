@@ -189,7 +189,7 @@ async function registerProvider(){
   }catch(e){setStatus(readableError(e),true);}
 }
 
-async function createDemand(){
+/* async function createDemand(){
   try{
     const did = document.getElementById('in-cr-did').value.trim();
     const rows = [...document.querySelectorAll('#items .row')];
@@ -204,7 +204,59 @@ async function createDemand(){
     await tx.wait();
     setStatus("Demand created");
   }catch(e){setStatus(readableError(e),true);}
+}*/
+  async function createDemand() {
+  try {
+    const did = document.getElementById('in-cr-did').value.trim();
+    const rows = [...document.querySelectorAll('#items .row')];
+    const rts = [], qtys = [], crits = [];
+
+    if (!did) {
+      setStatus("DID is required", true);
+      return;
+    }
+
+    if (rows.length === 0) {
+      setStatus("Please add at least one item", true);
+      return;
+    }
+
+    const selectedItems = new Set();
+
+    for (const r of rows) {
+      const rt = Number(r.querySelector('.item-rt').value);
+      const qty = BigInt(r.querySelector('.item-qty').value || '0');
+      const crit = Number(r.querySelector('.item-crit').value || '0');
+
+      // Prevent duplicate resource types
+      if (selectedItems.has(rt)) {
+        setStatus("Duplicate item types are not allowed", true);
+        return;
+      }
+      selectedItems.add(rt);
+
+      // Basic validations
+      if (qty <= 0n) {
+        setStatus("Quantity must be greater than 0", true);
+        return;
+      }
+
+      rts.push(rt);
+      qtys.push(qty);
+      crits.push(crit);
+    }
+
+    // Call contract method
+    const tx = await contract.createDemandRequest(did, rts, qtys, crits);
+    setStatus("Creating demand...");
+    await tx.wait();
+    setStatus("Demand created successfully");
+
+  } catch (e) {
+    setStatus(readableError(e), true);
+  }
 }
+
 
 async function loadMatrix() {
   try {
@@ -370,6 +422,7 @@ addItemRow();
 </script>
 </body>
 </html>
+
 
 
 
