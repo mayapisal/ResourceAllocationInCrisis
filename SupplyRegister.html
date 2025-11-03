@@ -256,11 +256,25 @@ $('btn-getAllProviders').onclick=async()=>{
     const tbody=$('providersTable').querySelector('tbody');
     tbody.innerHTML='';
     if(ids.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center;">No providers found</td></tr>'; return; }
-    for(let i=0;i<ids.length;i++){
-      const row=document.createElement('tr');
-      row.innerHTML=`<td>${ids[i]}</td><td>${names[i]}</td><td>${locs[i]}</td><td>${wallets[i]}</td><td>${res[i].join(', ')}</td>`;
-      tbody.appendChild(row);
-    }
+    for (let i = 0; i < ids.length; i++) {
+  const row = document.createElement('tr');
+
+  // Mask wallet address (show only last 4 characters)
+  const maskedWallet =
+    wallets[i].length > 4
+      ? '*'.repeat(wallets[i].length - 4) + wallets[i].slice(-4)
+      : wallets[i]; // if too short, show as-is
+
+  row.innerHTML = `
+    <td>${ids[i]}</td>
+    <td>${names[i]}</td>
+    <td>${locs[i]}</td>
+    <td>${maskedWallet}</td>
+    <td>${res[i].join(', ')}</td>
+  `;
+
+  tbody.appendChild(row);
+}
   }catch(e){ alert('Fetch all failed: '+parseEthersError(e)); }
 };
 
@@ -321,6 +335,7 @@ if(window.ethereum){
 </script>
 </body>
 </html>
+
 
 
 
